@@ -1,0 +1,56 @@
+[
+  {
+    "key": "beVietnam",
+    "family": "Be Vietnam Pro",
+    "license": "bevietnampro-OFL.txt",
+    "files": [
+      {
+        "file": "BeVietnamPro-Regular.woff2",
+        "weight": "400",
+        "style": "normal",
+        "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/bevietnampro/BeVietnamPro-Regular.ttf",
+        "sourceSha256": "cd1ef6e9d7db28ad5cdb88a65ccbe693870e60d340b791f349d248342b4fe4c3",
+        "sha256": "fdd073db68a5748039e72a2eb6b724456f600eb44ee04df9b585b7c85657d1fd"
+      },
+      {
+        "file": "BeVietnamPro-Italic.woff2",
+        "weight": "400",
+        "style": "italic",
+        "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/bevietnampro/BeVietnamPro-Italic.ttf",
+        "sourceSha256": "a33ebb3f68e0e260a7d3874d64259ad309971a2daf969e7ce5f444d70bce535f",
+        "sha256": "42f290508d47e553c414413f4c3ed91a134f0ba4c962fc28b83b392f90306861"
+      },
+      {
+        "file": "BeVietnamPro-SemiBold.woff2",
+        "weight": "600",
+        "style": "normal",
+        "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/bevietnampro/BeVietnamPro-SemiBold.ttf",
+        "sourceSha256": "bd8e27eb02720b9d91e59e4f10a90878643219f25ce6a8d9a4f06a8a88d3bb71",
+        "sha256": "e08fb757cd0be1f1bd49d92600c1b88e6c066e1bb9f10aa16fce2c31bd79a794"
+      },
+      {
+        "file": "BeVietnamPro-Bold.woff2",
+        "weight": "700",
+        "style": "normal",
+        "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/bevietnampro/BeVietnamPro-Bold.ttf",
+        "sourceSha256": "7f738fe5c43c8872807b20e2d30d42163618de8a4daf7f48a939adac32c16847",
+        "sha256": "f15924af740a07bd4d3f855527d29312da4a411db697416b9eafc1f77381d168"
+      }
+    ]
+  },
+  {
+    "key": "manrope",
+    "family": "Manrope",
+    "license": "manrope-OFL.txt",
+    "files": [
+      {
+        "file": "Manrope[wght].woff2",
+        "weight": "200 800",
+        "style": "normal",
+        "source": "https://raw.githubusercontent.com/google/fonts/main/ofl/manrope/Manrope%5Bwght%5D.ttf",
+        "sourceSha256": "3ae11c49db0455a3cc33e37d380f20fdb8c7f8b41dc07625c177e3d87a9d6ae6",
+        "sha256": "ace718c8d56a4d7f4fd8c938ff38cdb15c5da3b1c8b3bc7e784f7e465158e81f"
+      }
+    ]
+  }
+]
