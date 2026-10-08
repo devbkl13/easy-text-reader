@@ -359,7 +359,7 @@
   });
   $('clearButton').addEventListener('click', () => {
     if ($('sourceText').value && !confirm('Xóa bài đang soạn và bản nháp đã lưu trên trình duyệt này?')) return;
-    $('sourceText').value = ''; $('articleTitle').value = ''; titleManual = false; savedPosition = 0; format(); $('sourceText').focus();
+    $('sourceText').value = ''; $('articleTitle').value = ''; titleManual = false; savedPosition = 0; format();
   });
   $('pasteButton').addEventListener('click', async () => {
     try {
