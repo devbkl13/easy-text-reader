@@ -45,11 +45,11 @@
 
     <section id="workspace" class="workspace" aria-label="Soạn và xem trước">
       <div class="source-panel panel">
-        <div class="panel-heading"><div><span class="step-number">01</span><h2>Văn bản của bạn</h2></div><button id="sampleButton" class="text-button">Thử bài mẫu <span aria-hidden="true">↗</span></button></div>
+        <div class="panel-heading"><div><span class="step-number">01</span><h2>Văn bản của bạn</h2></div><button id="sampleButton" class="text-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h4"/></svg>Thử bài mẫu</button></div>
         <div class="source-body">
           <label class="field-label" for="articleTitle">TIÊU ĐỀ <span>không bắt buộc</span></label>
           <input id="articleTitle" class="title-input" type="text" maxlength="180" placeholder="Đặt tên cho bài đọc…" autocomplete="off">
-          <div class="input-label"><label class="field-label" for="sourceText">NỘI DUNG GỐC</label><div><button class="text-button small paste-button" id="pasteButton"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6"/></svg>Dán từ clipboard</button><button class="icon-button" id="clearButton" title="Xóa nội dung" aria-label="Xóa nội dung"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6M14 11v6"/></svg></button></div></div>
+          <div class="input-label"><label class="field-label" for="sourceText">NỘI DUNG GỐC</label><div><button class="text-button small" id="pasteButton"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6"/></svg>Dán từ clipboard</button><span class="input-divider" aria-hidden="true"></span><button class="icon-button" id="clearButton" title="Xóa nội dung" aria-label="Xóa nội dung"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6M14 11v6"/></svg></button></div></div>
           <textarea id="sourceText" spellcheck="false" aria-describedby="sourceHint" placeholder="Dán vào đây bài viết, ghi chú hay bất kỳ đoạn văn bản dài nào bạn muốn đọc…"></textarea>
           <div class="source-meta"><span id="sourceCount">0 từ</span><span id="saveStatus">Lưu tự động trên trình duyệt</span></div>
           <div class="format-options"><label for="formatMode">Nhận diện cấu trúc</label><select id="formatMode"><option value="balanced">Linh hoạt</option><option value="conservative">Thận trọng</option></select></div>
@@ -61,7 +61,7 @@
       </div>
 
       <div class="preview-panel panel">
-        <div class="panel-heading"><div><span class="step-number">02</span><h2>Khoảng đọc của bạn</h2></div><button id="startReading" class="text-button small paste-button">Mở chế độ đọc <span aria-hidden="true">↗</span></button></div>
+        <div class="panel-heading"><div><span class="step-number">02</span><h2>Khoảng đọc của bạn</h2></div><button id="startReading" class="text-button">Mở chế độ đọc <span aria-hidden="true">↗</span></button></div>
         <div class="preview-toolbar"><div id="formatSummary" class="format-summary"></div><label class="inspect-toggle"><input type="checkbox" id="inspectToggle"><span>Kiểm tra nhận diện</span></label></div>
         <div class="preview-scroll" id="previewScroll"><article id="previewArticle" class="reading-article"></article></div>
         <div class="preview-footer"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 12l2 2 4-4M12 3l8 4v6c0 4-8 8-8 8s-8-4-8-8V7z"/></svg>Nội dung được xử lý ngay trên máy</span></div>
