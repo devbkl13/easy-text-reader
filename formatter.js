@@ -5,6 +5,8 @@
   const BULLET = /^(\s*)([-+*•●▪◦‣–—]|✅|☑️?|✔️?|❌|☐|🔹|🔸|🔺|🔻|📌|👉|➡️?|➜|→|\d+[.)]|[a-zA-Z][.)])\s+(.+)$/u;
   const NUMBERED = /^(\d{1,3})[.)]\s+(.+)$/u;
   const CALLOUT = /^(ý quan trọng(?: nhất)?|lưu ý|chú ý|ghi nhớ|quan trọng|kết luận|tóm lại|mẹo|note|tip|warning|takeaway)\s*:/iu;
+  const TITLE_LABEL = /^(?:tiêu đề|tựa đề|tên bài(?: viết)?|title|headline)\s*[:：]\s*(\S.{1,178})$/iu;
+  const GREETING = /^(?:xin chào|chào|hello|hi|hey|dear|kính gửi|thân gửi|alo)(?![\p{L}\p{N}])/iu;
   const normalize = value => value.normalize('NFKC');
   const words = value => (value.match(/[\p{L}\p{N}]+(?:['’_-][\p{L}\p{N}]+)*/gu) || []).length;
   const short = (value, max = 120) => value.length <= max && words(value) <= 20;
@@ -81,6 +83,33 @@
     return groups;
   }
 
+  // Plain text of an inline-Markdown fragment, for use in a title.
+  function plain(value) {
+    return value.replace(/\[([^\]\n]+)\]\(https?:\/\/[^\s)]+\)/gu, '$1').replace(/https?:\/\/\S+/gu, '').replace(/`|\*\*|__/gu, '').replace(/\s+/gu, ' ').trim();
+  }
+
+  // A title for text with no recognizable one: the first sentence, shortened at a clause or after ten words.
+  function clipTitle(value) {
+    const text = value.replace(/[\s.,;:…–—-]+$/u, ''), tokens = text.split(/\s+/u);
+    if (tokens.length <= 12 && text.length <= 100) return text;
+    const clause = text.match(/^(.+?)[,;:–—]\s/u);
+    const clauseWords = clause ? clause[1].split(/\s+/u).length : 0;
+    if (clauseWords >= 4 && clauseWords <= 12 && clause[1].length <= 100) return clause[1] + '…';
+    const head = tokens.slice(0, 10).join(' ').replace(/[\s.,;:–—-]+$/u, '');
+    return (head.length > 90 ? head.slice(0, 90).trim() : head) + '…';
+  }
+
+  function fallbackTitle(blocks) {
+    for (const block of blocks) {
+      if (block.type === 'code' || block.type === 'rule' || block.type === 'title') continue;
+      const raw = block.type === 'list' ? block.items[0]?.text || '' : block.text;
+      const line = plain(raw.split('\n').find(item => plain(item)) || '').replace(/^[\s\p{Extended_Pictographic}️‍#>*_•–—-]+/u, '');
+      if (!/[\p{L}\p{N}]/u.test(line)) continue;
+      return clipTitle(sentences(line)[0] || line);
+    }
+    return '';
+  }
+
   function parse(source, options = {}) {
     const mode = options.mode === 'conservative' ? 'conservative' : 'balanced';
     const split = options.split !== false;
@@ -122,7 +151,9 @@
       if (short(text, 110) && letters.length >= 4 && uppercase / letters.length > .88 && !/[.!?]$/u.test(text) && !BULLET.test(text)) return { type: 'heading', level: 2, text: original, reason: 'Dòng ngắn viết hoa', confidence: 'vừa' };
       if (/^\*\*[^*]+\*\*$|^__[^_]+__$/u.test(original) && short(text) && nextHasBody(index)) return { type: 'heading', level: 2, text: original.slice(2, -2), reason: 'Dòng ngắn được nhấn mạnh, theo sau là nội dung', confidence: 'vừa' };
       const isolated = (index === 0 || !lines[index - 1].trim()) && nextContent(index)?.index > index + 1;
-      if (isolated && short(text, 95) && words(text) >= 2 && !END_SENTENCE.test(text) && !BULLET.test(text) && nextHasBody(index)) return { type: 'heading', level: 2, text: original, title: blocks.length === 0, reason: 'Dòng ngắn đứng riêng trước một đoạn dài', confidence: 'vừa' };
+      if (isolated && short(text, 95) && words(text) >= 2 && !END_SENTENCE.test(text) && !/[,;]$/u.test(text) && !GREETING.test(text) && !/https?:\/\//u.test(text) && !BULLET.test(text) && nextHasBody(index)) return { type: 'heading', level: 2, text: original, title: blocks.length === 0, reason: 'Dòng ngắn đứng riêng trước một đoạn dài', confidence: 'vừa' };
+      // The first line of a text is far more likely a title: allow ? and !, and any kind of text after it.
+      if (isolated && blocks.length === 0 && !inferredTitle && short(text, 95) && words(text) >= 2 && !/[.…,;:][”’"')\]]*$/u.test(text) && !BULLET.test(text) && !GREETING.test(text) && !/https?:\/\//u.test(text)) return { type: 'heading', level: 2, text: original, title: true, reason: 'Dòng ngắn đứng riêng ở đầu bài', confidence: 'vừa' };
       if (/^.{4,75}:$/u.test(text) && words(text) <= 12 && nextHasBody(index)) return { type: 'heading', level: 3, text: original, reason: 'Nhãn ngắn kết thúc bằng dấu hai chấm', confidence: 'vừa' };
       return null;
     }
@@ -139,6 +170,8 @@
         emit({ type: 'code', text: content.join('\n'), language: fence[2].trim(), line, reason: 'Khối mã có hàng rào Markdown', confidence: 'cao' });
         i = Math.min(end, lines.length - 1); continue;
       }
+      const labelled = blocks.length === 0 && !inferredTitle ? text.match(TITLE_LABEL) : null;
+      if (labelled) { inferredTitle = labelled[1].trim(); emit({ type: 'title', text: inferredTitle, line, reason: 'Dòng “Tiêu đề:” ở đầu bài', confidence: 'cao' }); continue; }
       const heading = headingAt(i);
       if (heading) {
         if (heading.title && !inferredTitle && blocks.length === 0) { inferredTitle = heading.text; emit({ ...heading, type: 'title', line }); }
@@ -190,7 +223,7 @@
       for (const paragraph of paragraphs) emit({ type: 'paragraph', text: paragraph, line, reason: paragraphs.length > 1 ? 'Thêm khoảng nghỉ tại ranh giới câu hoàn chỉnh' : merged ? 'Nối các dòng bị xuống hàng giữa câu' : 'Giữ đoạn văn gốc', confidence: 'cao', split: paragraphs.length > 1 });
     }
     const headings = blocks.filter(block => block.type === 'heading').length;
-    return { blocks, inferredTitle, stats: { words: words(source), characters: source.length, minutes: Math.max(1, Math.ceil(words(source) / 220)), headings, lists: blocks.filter(block => block.type === 'list').length, splits }, options: { mode, split } };
+    return { blocks, inferredTitle, suggestedTitle: inferredTitle ? '' : fallbackTitle(blocks), stats: { words: words(source), characters: source.length, minutes: Math.max(1, Math.ceil(words(source) / 220)), headings, lists: blocks.filter(block => block.type === 'list').length, splits }, options: { mode, split } };
   }
 
   function renderBlock(block) {

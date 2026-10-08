@@ -116,3 +116,26 @@ test('large input is handled without dropping any characters', () => {
 test('empty input has no blocks and a stable result', () => {
   const parsed = F.parse(' \n\t'); assert.equal(parsed.blocks.length, 0); assert.equal(parsed.stats.words, 0);
 });
+test('title detection: labelled, question and heading-like first lines become the title', () => {
+  assert.equal(F.parse('Tiêu đề: Agent là gì\n\n' + prose).inferredTitle, 'Agent là gì');
+  assert.equal(F.parse('Tiêu đề: Agent là gì\n\n' + prose).blocks[0].type, 'title');
+  assert.equal(F.parse('Khi nào thì cần agent?\n\nNgắn thôi.').inferredTitle, 'Khi nào thì cần agent?');
+  assert.deepEqual(F.parse('Khi nào thì cần agent?\n\nNgắn thôi.').blocks.map(b => b.type), ['title', 'paragraph'], 'the title is not repeated in the body');
+  assert.equal(F.parse('# Hello World\n\n' + prose).inferredTitle, 'Hello World');
+});
+test('title detection: greetings, sentences, URLs and conservative mode are not mistaken for titles', () => {
+  for (const text of ['Chào cả nhà,\n\n' + prose, 'Xin chào các bạn\n\n' + prose, 'https://example.com/abc\n\n' + prose, 'Một dòng ngắn có dấu chấm.\n\n' + prose]) assert.equal(F.parse(text).inferredTitle, '', text.slice(0, 20));
+  assert.equal(F.parse('Một chủ đề mới\n\n' + prose, { mode: 'conservative' }).inferredTitle, '');
+});
+test('fallback title: first sentence, shortened at a clause or after ten words', () => {
+  const title = text => F.parse(text).suggestedTitle;
+  assert.equal(title('Hôm nay trời đẹp. Mình đi chơi.'), 'Hôm nay trời đẹp');
+  assert.equal(title('Từ đầu năm đến giờ mình đưa agent vào được cho 3 hệ thống, cả của mình, lẫn của khách hàng.'), 'Từ đầu năm đến giờ mình đưa agent vào được…');
+  assert.equal(title('Mình làm agent từ đầu năm, và đây là những gì học được trong suốt thời gian đó.'), 'Mình làm agent từ đầu năm…');
+  assert.equal(title('🔥 **Mẹo** hay: dùng [liên kết](https://x.com) nhé. Câu hai.'), 'Mẹo hay: dùng liên kết nhé');
+  assert.equal(title('- mục một\n- mục hai'), 'mục một');
+  assert.equal(title('```\ncode\n```\n\nĐoạn sau mã.'), 'Đoạn sau mã');
+  assert.equal(title(''), '');
+  assert.equal(F.parse('# Có tiêu đề\n\n' + prose).suggestedTitle, '', 'a detected title needs no fallback');
+  assert.ok(title('x'.repeat(300)).length <= 91);
+});
