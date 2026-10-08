@@ -84,6 +84,20 @@ body[data-theme=mist]{--bg:#edf3f7;--surface:#f8fbfd;--ink:#2e4356;--muted:#6277
 @media(min-width:821px){.workspace{align-items:stretch}.preview-panel{display:flex;flex-direction:column}.workspace .preview-scroll{height:0;flex:1 1 auto;min-height:320px}}
 #previewArticle{--article-font:'Manrope','Segoe UI',Arial,sans-serif}
 
+.debounce-track{height:2px;margin-top:-1px;background:transparent;border-radius:2px;overflow:hidden}.debounce-track>span{display:block;height:100%;width:0;background:var(--accent);opacity:.55}.source-meta{margin-bottom:6px}.check-option{margin-bottom:8px}.source-hint{margin-bottom:6px}
+/* Desktop: page fills the browser window (never shorter than 680px); scrolls only below that. */
+@media(min-width:821px){
+  body{min-height:max(100dvh,680px);display:flex;flex-direction:column}
+  .site-header,main{width:100%;margin-inline:auto;margin-block:0}
+  main{flex:1 1 auto;display:flex;flex-direction:column}
+  .workspace{flex:1 1 auto}
+  .site-footer{margin-top:20px;padding:16px 0 20px}
+  .source-panel{display:flex;flex-direction:column}
+  .source-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+  .source-body textarea{flex:1 1 auto;height:0;min-height:150px;resize:none}
+  .source-body>*{flex:none}.source-body>textarea{flex:1 1 auto}
+}
+
 </style>
 </head>
 <body>
@@ -123,10 +137,10 @@ body[data-theme=mist]{--bg:#edf3f7;--surface:#f8fbfd;--ink:#2e4356;--muted:#6277
           <input id="articleTitle" class="title-input" type="text" maxlength="180" placeholder="Đặt tên cho bài đọc…" autocomplete="off">
           <div class="input-label"><label class="field-label" for="sourceText">NỘI DUNG GỐC</label><div><button class="text-button small" id="pasteButton"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6"/></svg>Dán từ clipboard</button><span class="input-divider" aria-hidden="true"></span><button class="icon-button" id="clearButton" title="Xóa nội dung" aria-label="Xóa nội dung"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6M14 11v6"/></svg></button></div></div>
           <textarea id="sourceText" spellcheck="false" aria-describedby="sourceHint" placeholder="Dán vào đây bài viết, ghi chú hay bất kỳ đoạn văn bản dài nào bạn muốn đọc…"></textarea>
-          <div class="source-meta"><span id="sourceCount">0 từ</span><span id="saveStatus">Lưu tự động trên trình duyệt</span></div>
+          <div class="debounce-track" aria-hidden="true"><span id="debounceBar"></span></div>
+          <div class="source-meta"><span id="sourceCount">0 từ</span><span id="saveStatus" aria-live="off">Lưu tự động trên trình duyệt</span></div>
           <div class="format-options"><label for="formatMode">Nhận diện cấu trúc</label><select id="formatMode"><option value="balanced">Linh hoạt</option><option value="conservative">Thận trọng</option></select></div>
           <label class="check-option"><input id="splitParagraphs" type="checkbox" checked><span>Chia đoạn dài theo ranh giới câu</span><span class="help-dot" title="Chỉ thêm khoảng nghỉ giữa các câu; không viết lại nội dung.">?</span></label>
-          <button id="formatButton" class="primary-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2 6 6 3-6 2-2 7-2-7-7-2 7-3zM20 2v4M18 4h4"/></svg>Tạo khoảng đọc<span aria-hidden="true">→</span></button>
           <p class="source-hint" id="sourceHint">Giữ lời văn của bạn. Chỉ sắp xếp lại cách trình bày.</p>
         </div>
         <details class="how-it-works"><summary>Công cụ đọc những dấu hiệu nào?<span aria-hidden="true">+</span></summary><p>Tiêu đề có số, CHỮ HOA, Markdown; danh sách với −, +, •; trích dẫn, dòng nhấn mạnh và các câu hoàn chỉnh. Công cụ xét thêm độ dài, khoảng trắng và các dòng lân cận để chọn cách trình bày.</p><p>Đây là bộ quy tắc cục bộ, không phải AI hiểu ngữ nghĩa. Bật “Kiểm tra nhận diện” bên cạnh để sửa những chỗ chưa đúng. Chế độ Thận trọng giữ cấu trúc gốc nhiều hơn.</p></details>
@@ -462,7 +476,6 @@ window.SAMPLE_TEXT = "Từ đầu năm đến giờ mình đưa agent vào đư�
     const hasContent = parsed.blocks.length > 0;
     $('readTab').disabled = !hasContent;
     $('startReading').disabled = !hasContent;
-    $('formatButton').disabled = !$('sourceText').value.trim();
     if (!hasContent) {
       $('previewArticle').innerHTML = '<div class="empty-state">' + bookIcon + '<h3>Những dòng chữ đang đợi bạn.</h3><p>Dán nội dung vào ô bên cạnh,<br>hoặc thử bài mẫu để bắt đầu.</p></div>';
       $('readerArticle').replaceChildren();
@@ -494,6 +507,7 @@ window.SAMPLE_TEXT = "Từ đầu năm đến giờ mình đưa agent vào đư�
 
   function format(notify = false, reset = true) {
     clearTimeout(draftTimer);
+    stopCountdown();
     if (reset) overrides = {};
     parsed = F.parse($('sourceText').value, { mode: $('formatMode').value, split: $('splitParagraphs').checked });
     pending = false;
@@ -503,13 +517,34 @@ window.SAMPLE_TEXT = "Từ đầu năm đến giờ mình đưa agent vào đư�
     if (notify) toast('Đã tạo khoảng đọc. Lời văn của bạn được giữ nguyên.');
   }
 
+  const debounceMs = 1500;
+  let countdownTimer;
+  function stopCountdown() {
+    clearInterval(countdownTimer);
+    const bar = $('debounceBar');
+    bar.style.transition = 'none';
+    bar.style.width = '0';
+  }
+
+  function startCountdown() {
+    const bar = $('debounceBar'), deadline = Date.now() + debounceMs;
+    clearInterval(countdownTimer);
+    bar.style.transition = 'none';
+    bar.style.width = '100%';
+    bar.getBoundingClientRect();
+    bar.style.transition = 'width ' + debounceMs + 'ms linear';
+    bar.style.width = '0';
+    const tick = () => { $('saveStatus').textContent = 'Tự cập nhật sau ' + (Math.max(0, deadline - Date.now()) / 1000).toFixed(1).replace('.', ',') + 's…'; };
+    tick();
+    countdownTimer = setInterval(tick, 100);
+  }
+
   function queueFormat() {
     pending = true;
-    $('formatButton').disabled = !$('sourceText').value.trim();
     $('sourceCount').textContent = F.words($('sourceText').value).toLocaleString('vi-VN') + ' từ';
-    $('saveStatus').textContent = 'Đang cập nhật…';
     clearTimeout(draftTimer);
-    draftTimer = setTimeout(() => format(), 550);
+    startCountdown();
+    draftTimer = setTimeout(() => format(), debounceMs);
   }
 
   function observeSections() {
@@ -639,10 +674,6 @@ window.SAMPLE_TEXT = "Từ đầu năm đến giờ mình đưa agent vào đư�
 
   $('sourceText').addEventListener('input', () => { savedPosition = 0; queueFormat(); });
   $('articleTitle').addEventListener('input', () => { render(); saveDraft(); });
-  $('formatButton').addEventListener('click', () => {
-    format(true, pending);
-    if (matchMedia('(max-width:820px)').matches && parsed.blocks.length) $('previewArticle').closest('.preview-panel').scrollIntoView({ behavior: motion(), block: 'start' });
-  });
   $('formatMode').addEventListener('change', () => format());
   $('splitParagraphs').addEventListener('change', () => format());
   $('sampleButton').addEventListener('click', loadSample);

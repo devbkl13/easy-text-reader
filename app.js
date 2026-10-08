@@ -65,7 +65,6 @@
     const hasContent = parsed.blocks.length > 0;
     $('readTab').disabled = !hasContent;
     $('startReading').disabled = !hasContent;
-    $('formatButton').disabled = !$('sourceText').value.trim();
     if (!hasContent) {
       $('previewArticle').innerHTML = '<div class="empty-state">' + bookIcon + '<h3>Những dòng chữ đang đợi bạn.</h3><p>Dán nội dung vào ô bên cạnh,<br>hoặc thử bài mẫu để bắt đầu.</p></div>';
       $('readerArticle').replaceChildren();
@@ -97,6 +96,7 @@
 
   function format(notify = false, reset = true) {
     clearTimeout(draftTimer);
+    stopCountdown();
     if (reset) overrides = {};
     parsed = F.parse($('sourceText').value, { mode: $('formatMode').value, split: $('splitParagraphs').checked });
     pending = false;
@@ -106,13 +106,34 @@
     if (notify) toast('Đã tạo khoảng đọc. Lời văn của bạn được giữ nguyên.');
   }
 
+  const debounceMs = 1500;
+  let countdownTimer;
+  function stopCountdown() {
+    clearInterval(countdownTimer);
+    const bar = $('debounceBar');
+    bar.style.transition = 'none';
+    bar.style.width = '0';
+  }
+
+  function startCountdown() {
+    const bar = $('debounceBar'), deadline = Date.now() + debounceMs;
+    clearInterval(countdownTimer);
+    bar.style.transition = 'none';
+    bar.style.width = '100%';
+    bar.getBoundingClientRect();
+    bar.style.transition = 'width ' + debounceMs + 'ms linear';
+    bar.style.width = '0';
+    const tick = () => { $('saveStatus').textContent = 'Tự cập nhật sau ' + (Math.max(0, deadline - Date.now()) / 1000).toFixed(1).replace('.', ',') + 's…'; };
+    tick();
+    countdownTimer = setInterval(tick, 100);
+  }
+
   function queueFormat() {
     pending = true;
-    $('formatButton').disabled = !$('sourceText').value.trim();
     $('sourceCount').textContent = F.words($('sourceText').value).toLocaleString('vi-VN') + ' từ';
-    $('saveStatus').textContent = 'Đang cập nhật…';
     clearTimeout(draftTimer);
-    draftTimer = setTimeout(() => format(), 550);
+    startCountdown();
+    draftTimer = setTimeout(() => format(), debounceMs);
   }
 
   function observeSections() {
@@ -242,10 +263,6 @@
 
   $('sourceText').addEventListener('input', () => { savedPosition = 0; queueFormat(); });
   $('articleTitle').addEventListener('input', () => { render(); saveDraft(); });
-  $('formatButton').addEventListener('click', () => {
-    format(true, pending);
-    if (matchMedia('(max-width:820px)').matches && parsed.blocks.length) $('previewArticle').closest('.preview-panel').scrollIntoView({ behavior: motion(), block: 'start' });
-  });
   $('formatMode').addEventListener('change', () => format());
   $('splitParagraphs').addEventListener('change', () => format());
   $('sampleButton').addEventListener('click', loadSample);

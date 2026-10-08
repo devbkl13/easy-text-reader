@@ -192,7 +192,7 @@ const { pathToFileURL } = require('node:url');
   await page.locator('#editTab').click();
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), '320px editor has no horizontal overflow');
   await page.locator('#sourceText').fill('<img src=x onerror="window.pwned=1">\n<script>window.pwned=1</script>\nLưu ý: Giữ nguyên văn bản.');
-  await page.locator('#formatButton').click();
+  await page.waitForFunction(() => !document.querySelector('#saveStatus').textContent.startsWith('Tự cập nhật'));
   assert.equal(await page.locator('#previewArticle img, #previewArticle script').count(), 0);
   assert.equal(await page.evaluate(() => window.pwned), undefined);
   assert.ok((await page.locator('#previewArticle').innerText()).includes('<script>window.pwned=1</script>'));
@@ -200,11 +200,11 @@ const { pathToFileURL } = require('node:url');
   // A custom display title must not erase the actual title found in the input.
   await page.locator('#articleTitle').fill('Tên hiển thị khác');
   await page.locator('#sourceText').fill('# Tiêu đề gốc\n\nĐây là lời văn nguyên bản cần giữ lại.');
-  await page.locator('#formatButton').click();
+  await page.waitForFunction(() => !document.querySelector('#saveStatus').textContent.startsWith('Tự cập nhật'));
   assert.equal(await page.locator('#previewArticle h2').innerText(), 'Tiêu đề gốc');
 
   await page.locator('#sourceText').fill('# Một bài kiểm tra\n\nĐây là đoạn văn bình thường để kiểm tra căn đều hai bên. Câu cuối của đoạn không bị kéo giãn.\n\n## Một đề mục\n\n> Một đoạn trích dẫn giữ căn trái.\n\n- Một mục danh sách\n\n```\nconst a = 1;\n```\n\nMột dòng thơ\nMột dòng ngắn\nMột khoảng lặng');
-  await page.locator('#formatButton').click();
+  await page.waitForFunction(() => !document.querySelector('#saveStatus').textContent.startsWith('Tự cập nhật'));
   assert.equal(await page.locator('#previewArticle p:not(.verse)').first().evaluate(el => getComputedStyle(el).textAlign), 'justify');
   for (const selector of ['.verse', 'blockquote', 'li', 'pre', 'h2']) assert.equal(await page.locator('#previewArticle ' + selector).first().evaluate(el => getComputedStyle(el).textAlign), 'start', selector + ' retains natural alignment');
 
