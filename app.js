@@ -2,7 +2,7 @@
   'use strict';
   const F = window.TextFormatter;
   const $ = id => document.getElementById(id);
-  const storageKey = 'khoang-doc-v1';
+  const storageKey = 'easy-text-reader-v1';
   const defaults = { fontSize: 20, lineHeight: 1.85, readingWidth: 720, fontFamily: 'serif', theme: 'paper' };
   const fonts = {
     serif: "Cambria,Georgia,'Times New Roman',serif",
@@ -231,7 +231,8 @@
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob), anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = (title().replace(/[<>:"/\\|?*\u0000-\u001f]/g, '').slice(0, 100) || 'khoang-doc') + '.html';
+    const baseName = title().replace(/[<>:"/\\|?*\u0000-\u001f]/g, '').slice(0, 100).trim();
+    anchor.download = (baseName ? baseName + ' - Reading Page' : 'Reading Page') + '.html';
     document.body.append(anchor);
     anchor.click();
     anchor.remove();

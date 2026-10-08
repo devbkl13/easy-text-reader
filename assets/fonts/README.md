@@ -21,7 +21,7 @@ Từ thư mục gốc của app:
 node scripts/build-portable.cjs
 ```
 
-Lệnh này tạo lại `fonts.js` và `khoang-doc.html` từ các file đã có, không cần mạng. Font được nhúng dưới dạng `data:font/woff2` để `file://`, bản app một file và bài đọc xuất ra không phụ thuộc đường dẫn font bên ngoài.
+Lệnh này tạo lại `fonts.js` và `easy-text-reader-standalone.html` từ các file đã có, không cần mạng. Font được nhúng dưới dạng `data:font/woff2` để `file://`, bản app một file và bài đọc xuất ra không phụ thuộc đường dẫn font bên ngoài.
 
 ## Cập nhật nguồn font
 

@@ -8,7 +8,7 @@ const { pathToFileURL } = require('node:url');
   const browser = await chromium.launch({ headless: true, channel: 'chrome' });
   try {
     const root = path.join(__dirname, '..');
-    for (const entry of ['index.html', 'khoang-doc.html']) {
+    for (const entry of ['index.html', 'easy-text-reader-standalone.html']) {
       const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, offline: true });
       const page = await context.newPage();
       const errors = [];

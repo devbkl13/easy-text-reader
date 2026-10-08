@@ -2,9 +2,15 @@
 
 Công cụ biến bài viết thuần văn bản thành một trang dễ đọc trên desktop và mobile. HTML, CSS và JavaScript thuần; không server, API, thư viện hay tài khoản. Font Google Fonts được đóng gói cục bộ, không tải từ mạng khi sử dụng.
 
+## Xuất bản trên GitHub Pages
+
+Repo có sẵn workflow `.github/workflows/pages.yml`. Mỗi lần push lên `master`, site tự được triển khai tại `https://devbkl13.github.io/easy-text-reader/` (bản độc lập tại `/easy-text-reader-standalone.html`).
+
+Thiết lập một lần: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+
 ## Mở và sử dụng
 
-**Mở `khoang-doc.html` bằng trình duyệt.** Đây là bản độc lập chứa cả giao diện, bộ định dạng và bài mẫu. Có thể chép riêng file này sang máy khác, không cần cài Node.js.
+**Mở `easy-text-reader-standalone.html` bằng trình duyệt.** Đây là bản độc lập chứa cả giao diện, bộ định dạng và bài mẫu. Có thể chép riêng file này sang máy khác, không cần cài Node.js.
 
 Hoặc mở `index.html` trong thư mục hiện tại; giữ `styles.css`, `fonts.js`, `formatter.js`, `app.js` và `sample.js` bên cạnh.
 
@@ -65,7 +71,7 @@ Văn bản chứa HTML được hiển thị như chữ, không thực thi. Ch�
 | `assets/fonts/` | Font WOFF2, giấy phép OFL, URL nguồn và SHA-256 |
 | `fonts.js` | Font và giấy phép nhúng, sinh từ các tệp WOFF2 cục bộ |
 | `sample.txt`, `sample.js` | Mẫu gốc và bản nhúng để mở qua `file://` |
-| `khoang-doc.html` | Bản app đóng gói trong một file |
+| `easy-text-reader-standalone.html` | Bản app đóng gói trong một file |
 | `scripts/build-portable.cjs` | Tạo lại bản độc lập từ mã nguồn và `sample.txt` |
 | `scripts/build-fonts.cjs` | Kiểm tra SHA-256 và tạo lại `fonts.js`, không cần mạng |
 | `scripts/vendor-fonts.py` | Tải nguồn chính thức, kiểm tra ký tự tiếng Việt và chuyển TTF thành WOFF2 khi cần cập nhật font |

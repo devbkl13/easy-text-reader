@@ -11,5 +11,5 @@ let html = read('index.html').replace('  <link rel="stylesheet" href="styles.css
 html = html.replace(/^  <script defer src="(?:fonts|sample|formatter|app)\.js"><\/script>\r?\n/gm, '');
 const scripts = ['fonts.js', 'sample.js', 'formatter.js', 'app.js'].map(file => '<script>\n' + read(file).replace(/<\/script/gi, '<\\/script') + '\n</script>').join('\n');
 html = html.replace('</body>', () => scripts + '\n</body>');
-fs.writeFileSync(path.join(root, 'khoang-doc.html'), html);
-console.log('Đã tạo khoang-doc.html — một tệp, mở trực tiếp, không cần server.');
+fs.writeFileSync(path.join(root, 'easy-text-reader-standalone.html'), html);
+console.log('Đã tạo easy-text-reader-standalone.html — một tệp, mở trực tiếp, không cần server.');
