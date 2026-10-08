@@ -269,22 +269,15 @@
     if ($('sourceText').value && !confirm('Xóa bài đang soạn và bản nháp đã lưu trên trình duyệt này?')) return;
     $('sourceText').value = ''; $('articleTitle').value = ''; savedPosition = 0; format(); $('sourceText').focus();
   });
-  $('importButton').addEventListener('click', () => $('fileInput').click());
-  $('fileInput').addEventListener('change', async event => {
-    const file = event.target.files[0];
-    if (!file) return;
-    event.target.value = '';
-    if (file.size > 2 * 1024 * 1024) { toast('Vui lòng chọn tệp văn bản nhỏ hơn 2 MB.'); return; }
-    if ($('sourceText').value.trim() && !confirm('Thay nội dung đang soạn bằng tệp “' + file.name + '”?')) return;
+  $('pasteButton').addEventListener('click', async () => {
     try {
-      const text = await file.text();
-      if (text.includes('\0')) { toast('Tệp này có vẻ không phải văn bản thuần. Hãy chọn tệp UTF-8 .txt hoặc .md.'); return; }
+      const text = await navigator.clipboard.readText();
+      if (!text.trim()) { toast('Clipboard đang trống.'); return; }
       $('sourceText').value = text;
       $('articleTitle').value = '';
       savedPosition = 0; format();
-      if (!parsed.inferredTitle) { $('articleTitle').value = file.name.replace(/\.(txt|md)$/iu, ''); render(); saveDraft(); }
-      toast('Đã mở tệp “' + file.name + '”.');
-    } catch { toast('Không đọc được tệp này. Bạn có thể dán văn bản trực tiếp.'); }
+      toast('Đã dán nội dung từ clipboard.');
+    } catch { toast('Không đọc được clipboard. Hãy cho phép quyền truy cập hoặc dán thủ công bằng Ctrl+V.'); $('sourceText').focus(); }
   });
   $('readTab').addEventListener('click', () => showReader(true));
   $('homeLink').addEventListener('click', event => { event.preventDefault(); showReader(false); });
@@ -343,6 +336,24 @@
   window.addEventListener('resize', () => { updateProgress(); positionReadingSettings(); });
   window.addEventListener('pagehide', () => { if (pending) format(); else saveDraft(); });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { if (pending) format(); else saveDraft(); } });
+
+  // Intro hero: auto-folds once the user starts working; remembered across visits.
+  const introKey = 'khoang-doc-intro', root = document.documentElement;
+  let introPinnedOpen = false;
+  function setIntro(collapsed, remember = true) {
+    root.classList.toggle('intro-collapsed', collapsed);
+    $('introUnfold').setAttribute('aria-expanded', String(!collapsed));
+    $('introFold').setAttribute('aria-expanded', String(!collapsed));
+    if (remember) { try { collapsed ? localStorage.setItem(introKey, 'collapsed') : localStorage.removeItem(introKey); } catch {} }
+  }
+  const autoFold = () => { if (!introPinnedOpen && !reading && !root.classList.contains('intro-collapsed')) setIntro(true); };
+  $('introFold').addEventListener('click', () => { introPinnedOpen = false; setIntro(true); $('sourceText').focus({ preventScroll: true }); });
+  $('introUnfold').addEventListener('click', () => { introPinnedOpen = true; setIntro(false, false); try { localStorage.removeItem(introKey); } catch {} $('introFold').focus({ preventScroll: true }); });
+  $('workspace').addEventListener('focusin', autoFold);
+  $('sourceText').addEventListener('paste', autoFold);
+  window.addEventListener('scroll', () => { if (window.scrollY > 60) autoFold(); }, { passive: true });
+  setIntro(root.classList.contains('intro-collapsed'), false);
+  requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('no-anim')));
 
   let restored = false;
   try {

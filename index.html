@@ -7,6 +7,7 @@
   <meta name="description" content="Biến văn bản thô thành một trang dễ đọc. Chạy hoàn toàn trên thiết bị, kể cả khi không có mạng.">
   <title>Khoảng đọc — Cho những dòng chữ một khoảng thở</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%233c5f4b'/%3E%3Cpath d='M10 11h7c2 0 3 1 3 2 0-1 1-2 3-2h7v18h-7c-2 0-3 1-3 2 0-1-1-2-3-2h-7zM20 13v18' fill='none' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E">
+  <script>try{if(localStorage.getItem('khoang-doc-intro')==='collapsed')document.documentElement.classList.add('intro-collapsed','no-anim')}catch(e){}</script>
   <link rel="stylesheet" href="styles.css">
   <script defer src="fonts.js"></script>
   <script defer src="sample.js"></script>
@@ -25,9 +26,21 @@
   </header>
 
   <main>
-    <section class="intro" id="intro">
-      <div><div class="eyebrow"><span class="tiny-line"></span> ÍT XAO NHÃNG. NHIỀU TẬP TRUNG.</div><h1>Một khoảng thở<br>cho những <em>dòng chữ.</em></h1><p>Dán bài viết bạn muốn đọc. Để những đoạn dài trở nên nhẹ nhàng hơn.</p></div>
-      <div class="intro-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4v6c0 4-8 8-8 8s-8-4-8-8V7zM8 12l3 3 5-6"/></svg><div><strong>Chỉ có bạn và bài viết.</strong><span>Không tài khoản. Không gửi văn bản đi đâu.<br>Hoạt động cả khi không có mạng.</span></div></div>
+    <section class="intro" id="intro" aria-label="Giới thiệu">
+      <div class="intro-pane full" id="introFull">
+        <div class="intro-clip"><div class="intro-inner">
+          <div><div class="eyebrow"><span class="tiny-line"></span> BỚT ỒN ÀO. ĐỌC TẬP TRUNG.</div><h1>Một khoảng thở<br>cho những <em>dòng chữ.</em></h1><p>Dán bài bạn muốn đọc vào đây. Những đoạn văn dài sẽ thoáng và dễ đọc hơn.</p></div>
+          <div class="intro-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4v6c0 4-8 8-8 8s-8-4-8-8V7zM8 12l3 3 5-6"/></svg><div><strong>Chỉ có bạn và bài viết.</strong><span>Không cần tài khoản. Văn bản không rời khỏi máy bạn.<br>Dùng được cả khi không có mạng.</span></div></div>
+          <button type="button" id="introFold" class="text-button small intro-fold" aria-controls="introFull">Thu gọn <span aria-hidden="true">↑</span></button>
+        </div></div>
+      </div>
+      <div class="intro-pane compact" id="introCompact">
+        <div class="intro-clip"><div class="intro-strip">
+          <p class="intro-tagline">Một khoảng thở cho những <em>dòng chữ.</em></p>
+          <span class="intro-privacy"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4v6c0 4-8 8-8 8s-8-4-8-8V7zM8 12l3 3 5-6"/></svg>Văn bản không rời khỏi máy bạn</span>
+          <button type="button" id="introUnfold" class="text-button small" aria-controls="introFull" aria-expanded="false">Mở giới thiệu <span aria-hidden="true">↓</span></button>
+        </div></div>
+      </div>
     </section>
 
     <section id="workspace" class="workspace" aria-label="Soạn và xem trước">
@@ -36,7 +49,7 @@
         <div class="source-body">
           <label class="field-label" for="articleTitle">TIÊU ĐỀ <span>không bắt buộc</span></label>
           <input id="articleTitle" class="title-input" type="text" maxlength="180" placeholder="Đặt tên cho bài đọc…" autocomplete="off">
-          <div class="input-label"><label class="field-label" for="sourceText">NỘI DUNG GỐC</label><div><button class="text-button small" id="importButton">Mở tệp .txt</button><button class="icon-button" id="clearButton" title="Xóa nội dung" aria-label="Xóa nội dung"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6M14 11v6"/></svg></button></div></div>
+          <div class="input-label"><label class="field-label" for="sourceText">NỘI DUNG GỐC</label><div><button class="text-button small paste-button" id="pasteButton"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6"/></svg>Dán từ clipboard</button><button class="icon-button" id="clearButton" title="Xóa nội dung" aria-label="Xóa nội dung"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6M14 11v6"/></svg></button></div></div>
           <textarea id="sourceText" spellcheck="false" aria-describedby="sourceHint" placeholder="Dán vào đây bài viết, ghi chú hay bất kỳ đoạn văn bản dài nào bạn muốn đọc…"></textarea>
           <div class="source-meta"><span id="sourceCount">0 từ</span><span id="saveStatus">Lưu tự động trên trình duyệt</span></div>
           <div class="format-options"><label for="formatMode">Nhận diện cấu trúc</label><select id="formatMode"><option value="balanced">Linh hoạt</option><option value="conservative">Thận trọng</option></select></div>
@@ -48,10 +61,10 @@
       </div>
 
       <div class="preview-panel panel">
-        <div class="panel-heading"><div><span class="step-number">02</span><h2>Khoảng đọc của bạn</h2></div><span class="preview-label"><span></span>XEM TRƯỚC</span></div>
+        <div class="panel-heading"><div><span class="step-number">02</span><h2>Khoảng đọc của bạn</h2></div><button id="startReading" class="text-button small paste-button">Mở chế độ đọc <span aria-hidden="true">↗</span></button></div>
         <div class="preview-toolbar"><div id="formatSummary" class="format-summary"></div><label class="inspect-toggle"><input type="checkbox" id="inspectToggle"><span>Kiểm tra nhận diện</span></label></div>
         <div class="preview-scroll" id="previewScroll"><article id="previewArticle" class="reading-article"></article></div>
-        <div class="preview-footer"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 12l2 2 4-4M12 3l8 4v6c0 4-8 8-8 8s-8-4-8-8V7z"/></svg>Nội dung được xử lý ngay trên máy</span><button id="startReading" class="text-button">Mở chế độ đọc <span aria-hidden="true">↗</span></button></div>
+        <div class="preview-footer"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 12l2 2 4-4M12 3l8 4v6c0 4-8 8-8 8s-8-4-8-8V7z"/></svg>Nội dung được xử lý ngay trên máy</span></div>
       </div>
     </section>
 
@@ -74,7 +87,6 @@
     <footer id="siteFooter" class="site-footer"><span>Đọc dễ hơn. Nghĩ sâu hơn.</span><span>Được tạo cho những bài viết xứng đáng được đọc hết.</span><span>khoảng đọc<span class="brand-dot">.</span></span></footer>
   </main>
   <button id="exitFocusButton" class="focus-exit" hidden title="Thoát chế độ Focus (Esc)" aria-keyshortcuts="Escape"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h5V3m8 0v5h5M8 21v-5H3m18 0h-5v5"/></svg><span>Thoát Focus</span><kbd>Esc</kbd></button>
-  <input type="file" id="fileInput" accept=".txt,.md,text/plain,text/markdown" hidden>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <noscript><p class="noscript">Hãy bật JavaScript để công cụ có thể định dạng văn bản ngay trên thiết bị của bạn.</p></noscript>
 </body>

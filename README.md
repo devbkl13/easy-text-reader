@@ -14,7 +14,7 @@ Thiết lập một lần: **Settings → Pages → Build and deployment → Sou
 
 Hoặc mở `index.html` trong thư mục hiện tại; giữ `styles.css`, `fonts.js`, `formatter.js`, `app.js` và `sample.js` bên cạnh.
 
-1. Thay bài mẫu bằng văn bản bạn dán vào, hoặc chọn **Mở tệp .txt**. Hỗ trợ thêm Markdown UTF-8; giới hạn tệp nhập là 2 MB.
+1. Thay bài mẫu bằng văn bản bạn dán vào, hoặc bấm **Dán từ clipboard** để dán nhanh nội dung đã sao chép (trình duyệt có thể hỏi quyền đọc clipboard).
 2. Bản xem trước tự cập nhật sau khi bạn ngừng gõ. **Tạo khoảng đọc** cập nhật ngay; trên màn hình nhỏ, nút này đưa bạn đến bản xem trước.
 3. Tiêu đề hiển thị là tùy chọn. Nếu để trống, công cụ dùng tiêu đề nhận diện được hoặc “Bài viết của bạn”. Nếu bạn đặt tên khác, tiêu đề gốc vẫn được giữ trong bài.
 4. Bật **Kiểm tra nhận diện** để xem dấu hiệu và dòng nguồn, đổi đoạn thành đề mục/trích dẫn/ý cần chú ý hoặc hoàn tác từng lựa chọn.

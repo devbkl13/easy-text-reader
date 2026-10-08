@@ -208,7 +208,9 @@ const { pathToFileURL } = require('node:url');
   assert.equal(await page.locator('#previewArticle p:not(.verse)').first().evaluate(el => getComputedStyle(el).textAlign), 'justify');
   for (const selector of ['.verse', 'blockquote', 'li', 'pre', 'h2']) assert.equal(await page.locator('#previewArticle ' + selector).first().evaluate(el => getComputedStyle(el).textAlign), 'start', selector + ' retains natural alignment');
 
-  await page.locator('#fileInput').setInputFiles(path.join(root, 'sample.txt'));
+  const sampleText = require('fs').readFileSync(path.join(root, 'sample.txt'), 'utf8');
+  await page.evaluate(text => { navigator.clipboard.readText = async () => text; }, sampleText);
+  await page.locator('#pasteButton').click();
   await page.waitForFunction(() => document.querySelectorAll('#previewArticle h2').length === 4);
   await page.locator('#clearButton').click();
   assert.equal(await page.locator('#sourceText').inputValue(), '');
